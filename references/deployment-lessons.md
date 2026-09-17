@@ -45,6 +45,28 @@ smoke test grounded answer with citation/source metadata
 
 This keeps demo content repeatable, avoids local-file drift, and makes the same pattern usable for customer-approved knowledge later.
 
+## Monitoring and evaluation
+
+For every deployable Foundry agent, include both runtime monitoring and an evaluation gate.
+
+Recommended monitoring:
+
+1. Provision Log Analytics and Application Insights in Bicep.
+2. Configure Azure Monitor OpenTelemetry in any Container App/API wrapper.
+3. Log request start/completion, latency, status, and failures.
+4. Use Foundry observability/tracing for agent runs, model calls, MCP/knowledge-base tool calls, latency, and errors.
+5. For code-first Microsoft Agent Framework hosted agents, enable the framework's OpenTelemetry integration and tag spans with the agent name/environment.
+
+Recommended evaluation:
+
+1. Add an `evals/` folder with a small golden dataset.
+2. Cover source-grounding, citation/source behavior, refusal/evidence gaps, formatting, and one or more business-critical workflows.
+3. Run a live evaluation after deployment against `/ask`, the Foundry Responses API, or the selected hosted-agent protocol.
+4. Fail the GitHub Actions run when pass rate is below a configurable threshold such as `EVAL_MIN_PASS_RATE`.
+5. Upload JSON results as a workflow artifact.
+
+The Hudson deployment used this pattern: Application Insights + Log Analytics for runtime telemetry, Foundry observability for hosted-agent and MCP tool traces, and a GitHub Actions live evaluation gate over `evals/golden.jsonl`.
+
 ## Current Foundry RBAC roles
 
 Do not rely on legacy/misleading Azure AI roles for Foundry hosted-agent publish and endpoint access. Microsoft documentation states that roles such as Azure AI Developer and Cognitive Services roles do not apply to Foundry hosted-agent project work.

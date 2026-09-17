@@ -50,6 +50,17 @@ GitHub Actions should include this RAG sequence when grounding is part of the so
 
 Important Bicep limitation: Azure Storage accounts, Blob containers, Azure AI Search services, Foundry accounts/projects, Foundry project connections, identities, and RBAC can be created with Bicep. Foundry IQ knowledge sources and knowledge bases are not currently exposed as first-class Bicep/ARM resource types. Create or update them after Bicep using REST/SDK scripts, or wrap those REST calls in a Bicep `deploymentScripts` resource if the user requires a single Bicep-driven deployment. Treat that as Bicep-orchestrated scripting, not native declarative Bicep support.
 
+## Monitoring and evaluation
+
+Always include monitoring and evaluation for deployable agents:
+
+1. Provision Log Analytics and Application Insights with Bicep.
+2. Enable Foundry observability/tracing for agent runs, tool calls, latency, and errors.
+3. For Container App or API wrappers, configure Azure Monitor OpenTelemetry and log request start/completion, latency, response status, and failures.
+4. Add an `evals/` folder with a small golden dataset covering grounding, refusal/evidence gaps, formatting, and at least one core business workflow.
+5. Add a GitHub Actions evaluation gate after deployment that calls the live endpoint or Foundry Responses API and fails below a configurable pass rate.
+6. Upload evaluation results as a workflow artifact and document where to inspect traces in Foundry and telemetry in Application Insights.
+
 ## Default assumptions
 
 - Cloud: Azure
@@ -125,7 +136,8 @@ Add a 60-120 second wait after deploying Foundry role assignments before calling
 8. Create/update the prompt-based agent, or build/push/deploy the Microsoft Agent Framework hosted-agent container.
 9. Grant runtime identity Foundry Agent Consumer at the agent scope.
 10. Build/push a separate API/front-end image only if one exists.
-11. Smoke test `/health`, `/ask`, the Responses API, or the selected hosted-agent protocol endpoint.
+11. Run live evaluations and upload the results artifact.
+12. Smoke test `/health`, `/ask`, the Responses API, or the selected hosted-agent protocol endpoint.
 
 ## Common failure fixes
 
